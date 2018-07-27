@@ -1,0 +1,23 @@
+[Unit]
+Description=PDF Report Printer
+After=docker.service
+Requires=docker.service
+
+[Service]
+User=root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
+ExecStartPre=-/usr/bin/docker kill pdf_gen
+ExecStartPre=-/usr/bin/docker rm pdf_gen
+ExecStartPre=/usr/bin/docker pull rbcs/pdf_gen:1.0.0
+ExecStart=/usr/bin/docker run \
+  --name pdf_gen \
+  -p 8447:8447 \
+  -e NODE_ENV=production \
+  rbcs/pdf_gen:1.0.2
+ExecStop=/usr/bin/docker stop pdf_gen
+TimeoutStartSec=15m
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
